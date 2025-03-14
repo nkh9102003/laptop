@@ -1,0 +1,16 @@
+.bg-dark-blue {
+  background-color: #0056b3;
+}
+.text-dark-blue {
+  color: #0056b3;
+}
+.btn-dark-blue {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  color: white;
+}
+.btn-dark-blue:hover {
+  background-color: #004494;
+  border-color: #004494;
+  color: white;
+}
