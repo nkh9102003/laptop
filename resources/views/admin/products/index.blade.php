@@ -49,7 +49,7 @@
               <tr>
                   <td>{{ $product->id }}</td>
                   <td>{{ $product->name }}</td>
-                  <td><img src="{{ $product->image }}" width="100px" alt=""></td>
+                  <td><img src="{{ $product->image_url }}" width="100px" alt=""></td>
                   <td>{{ $product->description }}</td>
                   <td>{{ $product->stock }}</td>
                   <td>{{ $product->price }}</td>

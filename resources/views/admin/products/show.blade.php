@@ -44,11 +44,7 @@
         <div class="col-xs-12 col-sm-12 col-md-12">
             <div class="form-group">
                 <strong>Image:</strong> <br/>
-                @if ($product->image)
-                    <img src="{{ $product->image }}" width="200">
-                @else
-                    No image available
-                @endif
+                <img src="{{ $product->image_url }}" width="200">
             </div>
         </div>
     </div>

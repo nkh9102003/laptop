@@ -9,72 +9,51 @@ use App\Models\Payment;
 use App\Models\Product;
 use App\Models\User;
 use Faker\Factory as Faker;
-use Carbon\Carbon;
 
 class OrdersTableSeeder extends Seeder
 {
     public function run()
     {
-        $faker = Faker::create();
-
-        // Get all product IDs between 36 and 50
-        $productIds = range(36, 50);
-
-        // Get all user IDs except 3
-        $userIds = User::whereNotIn('id', [3])->pluck('id')->toArray();
-
-        // Generate 1000 orders
-        for ($i = 0; $i < 1000; $i++) {
-            $orderDate = $faker->dateTimeBetween('-5 years', 'now');
-            $status = $faker->randomElement(['processing', 'paid', 'cancelled']);
-            $paymentMethod = $faker->randomElement(['online', 'COD']);
-
-            $order = Order::create([
-                'user_id' => $faker->randomElement($userIds),
-                'total' => 0, // We'll calculate this later
-                'status' => $status,
-                'payment_method' => $paymentMethod,
-                'name' => $faker->name,
-                'contact' => $faker->phoneNumber,
-                'address' => $faker->address,
-                'created_at' => $orderDate,
-                'updated_at' => $orderDate,
-            ]);
-
-            // Generate 1-5 order items for each order
-            $orderTotal = 0;
-            $itemCount = $faker->numberBetween(1, 5);
-            for ($j = 0; $j < $itemCount; $j++) {
-                $product = Product::find($faker->randomElement($productIds));
-                $quantity = $faker->numberBetween(1, 3);
-                $price = $faker->numberBetween(600, 1300);
+        // Create 100 orders
+        Order::factory()
+            ->count(100)
+            ->create()
+            ->each(function ($order) {
+                // Add 1-4 items to each order
+                $itemCount = rand(1, 4);
+                $orderTotal = 0;
                 
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'quantity' => $quantity,
-                    'price' => $price,
-                    'created_at' => $orderDate,
-                    'updated_at' => $orderDate,
-                ]);
+                // Get random unique products
+                $products = Product::inRandomOrder()->take($itemCount)->get();
+                
+                foreach ($products as $product) {
+                    $quantity = rand(1, 3);
+                    $orderItem = OrderItem::factory()->create([
+                        'order_id' => $order->id,
+                        'product_id' => $product->id,
+                        'quantity' => $quantity,
+                        'price' => $product->price,
+                        'created_at' => $order->created_at,
+                        'updated_at' => $order->created_at,
+                    ]);
+                    
+                    $orderTotal += $quantity * $product->price;
+                }
 
-                $orderTotal += $quantity * $price;
-            }
+                // Update order total
+                $order->update(['total' => $orderTotal]);
 
-            // Update order total
-            $order->update(['total' => $orderTotal]);
-
-            // Create payment for paid orders
-            if ($status === 'paid') {
-                Payment::create([
-                    'order_id' => $order->id,
-                    'amount' => $orderTotal,
-                    'payment_method' => $paymentMethod,
-                    'payment_date' => $orderDate,
-                    'created_at' => $orderDate,
-                    'updated_at' => $orderDate,
-                ]);
-            }
-        }
+                // Create payment for paid orders
+                if ($order->status === 'paid') {
+                    Payment::create([
+                        'order_id' => $order->id,
+                        'amount' => $orderTotal,
+                        'payment_method' => $order->payment_method,
+                        'payment_date' => $order->created_at,
+                        'created_at' => $order->created_at,
+                        'updated_at' => $order->created_at,
+                    ]);
+                }
+            });
     }
 }

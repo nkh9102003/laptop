@@ -10,7 +10,7 @@
         <div class="col-md-3 mb-4">
             <div class="card h-100 shadow-sm">
                 <div class="position-relative product-image-container">
-                    <img src="{{ $product->image }}" class="card-img-top product-image" alt="{{ $product->name }}" style="height: 200px; object-fit: cover;">
+                    <img src="{{ $product->image_url }}" class="card-img-top product-image" alt="{{ $product->name }}" style="height: 200px; object-fit: cover;">
                     <div class="overlay">
                         <a href="{{ route('products.show', $product->id) }}" class="btn btn-light">View Details</a>
                     </div>

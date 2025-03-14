@@ -93,9 +93,7 @@
           @error('image')
               <div class="form-text text-danger">{{ $message }}</div>
           @enderror
-          @if ($product->image)
-              <img src="{{ $product->image }}" width="100" class="mt-2">
-          @endif
+            <img src="{{ $product->image_url }}" width="100" class="mt-2">
         </div>
   
         <button type="submit" class="btn btn-success"><i class="fa-solid fa-floppy-disk"></i> Update</button>
