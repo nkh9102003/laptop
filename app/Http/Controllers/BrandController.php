@@ -9,9 +9,20 @@ use Illuminate\Http\Response;
 use Illuminate\View\View;
 use App\Http\Requests\BrandStoreRequest;
 use App\Http\Requests\BrandUpdateRequest;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Config;
 
 class BrandController extends Controller
 {
+    /**
+     * Get the path where brand logos are stored
+     */
+    protected function getLogoPath()
+    {
+        return Config::get('filesystems.paths.brand_logos', 'images/brands/');
+    }
+
     public function index(Request $request)
     {
         $query = Brand::query();
@@ -38,7 +49,15 @@ class BrandController extends Controller
      */
     public function store(BrandStoreRequest $request): RedirectResponse
     {   
-        Brand::create($request->validated());
+        $input = $request->validated();
+
+        if ($logo = $request->file('logo')) {
+            $logoName = Str::slug($request->name) . '-' . time() . '.' . $logo->getClientOriginalExtension();
+            $logo->move(public_path($this->getLogoPath()), $logoName);
+            $input['logo'] = $logoName;
+        }
+
+        Brand::create($input);
            
         return redirect()->route('admin.brands.index')
                          ->with('success', 'Brand created successfully.');
@@ -49,7 +68,7 @@ class BrandController extends Controller
      */
     public function show(Brand $brand): View
     {
-        return view('admin.brands.show',compact('brand'));
+        return view('admin.brands.show', compact('brand'));
     }
   
     /**
@@ -57,7 +76,7 @@ class BrandController extends Controller
      */
     public function edit(Brand $brand): View
     {
-        return view('admin.brands.edit',compact('brand'));
+        return view('admin.brands.edit', compact('brand'));
     }
   
     /**
@@ -65,10 +84,25 @@ class BrandController extends Controller
      */
     public function update(BrandUpdateRequest $request, Brand $brand): RedirectResponse
     {
-        $brand->update($request->validated());
+        $input = $request->validated();
+
+        if ($logo = $request->file('logo')) {
+            // Delete old logo if exists
+            if ($brand->logo && File::exists(public_path($this->getLogoPath() . $brand->logo))) {
+                File::delete(public_path($this->getLogoPath() . $brand->logo));
+            }
+            
+            $logoName = Str::slug($request->name) . '-' . time() . '.' . $logo->getClientOriginalExtension();
+            $logo->move(public_path($this->getLogoPath()), $logoName);
+            $input['logo'] = $logoName;
+        } else {
+            unset($input['logo']);
+        }
+
+        $brand->update($input);
           
         return redirect()->route('admin.brands.index')
-                        ->with('success','Brand updated successfully');
+                        ->with('success', 'Brand updated successfully');
     }
   
     /**
@@ -76,9 +110,17 @@ class BrandController extends Controller
      */
     public function destroy(Brand $brand): RedirectResponse
     {
+        // Delete the brand logo if it exists
+        if ($brand->logo) {
+            $logoPath = public_path($this->getLogoPath() . $brand->logo);
+            if (File::exists($logoPath)) {
+                File::delete($logoPath);
+            }
+        }
+        
         $brand->delete();
            
         return redirect()->route('admin.brands.index')
-                        ->with('success','Brand deleted successfully');
+                        ->with('success', 'Brand deleted successfully');
     }
 }

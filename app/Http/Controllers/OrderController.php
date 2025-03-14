@@ -8,6 +8,7 @@ use App\Models\Cart;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
@@ -37,9 +38,15 @@ class OrderController extends Controller
 
         return redirect()->route('admin.orders.index')->with('success', 'Order status updated successfully.');
     }
+    
     public function customerIndex()
     {
-        $orders = auth()->user()->orders()->latest()->paginate(10);
+        // Get the current user ID
+        $userId = Auth::id();
+        
+        // Get orders for this user
+        $orders = Order::where('user_id', $userId)->latest()->paginate(10);
+        
         return view('orders.index', compact('orders'));
     }
 
@@ -59,7 +66,7 @@ class OrderController extends Controller
 
         try {
             $order = Order::create([
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'total' => $cart->items->sum(function ($item) {
                     return $item->product->price * $item->quantity;
                 }),
@@ -114,6 +121,7 @@ class OrderController extends Controller
         $sessionId = session()->getId();
         return Cart::firstOrCreate(['session_id' => $sessionId]);
     }
+    
     public function cancelOrder(Order $order)
     {
         // Check if the order is still processing

@@ -81,7 +81,7 @@
                         <tr>
                             <td>
                               <a href="{{ route('admin.products.show', $item->product->id) }}" class="text-decoration-none">
-                                <img src="{{ $item->product->image }}" alt="{{ $item->product->name }}" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                                <img src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
                                 {{ $item->product->name }}
                               </a>
                             </td>
