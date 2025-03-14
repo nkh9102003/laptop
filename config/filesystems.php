@@ -73,4 +73,21 @@ return [
         public_path('storage') => storage_path('app/public'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Custom File Paths
+    |--------------------------------------------------------------------------
+    |
+    | Here you may configure the paths used for storing different types of files
+    | in your application. This allows for easy modification if storage locations
+    | change in the future.
+    |
+    */
+
+    'paths' => [
+        'product_images' => 'images/products/',
+        'user_avatars' => 'images/avatars/',
+        'brand_logos' => 'images/brands/',
+    ],
+
 ];

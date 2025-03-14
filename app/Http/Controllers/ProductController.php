@@ -9,9 +9,19 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Config;
 
 class ProductController extends Controller
 {
+    /**
+     * Get the path where product images are stored
+     */
+    protected function getImagePath()
+    {
+        return Config::get('filesystems.paths.product_images', 'images/products/');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -62,10 +72,9 @@ class ProductController extends Controller
         $input = $request->all();
 
         if ($image = $request->file('image')) {
-            $destinationPath = 'images/products/';
             $imageName = Str::slug($request->name) . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path($destinationPath), $imageName);
-            $input['image'] = "/" . $destinationPath . $imageName;
+            $image->move(public_path($this->getImagePath()), $imageName);
+            $input['image'] = $imageName;
         }
 
         Product::create($input);
@@ -107,10 +116,14 @@ class ProductController extends Controller
 
         $input = $request->all();
         if ($image = $request->file('image')) {
-            $destinationPath = 'images/products/';
+            // Delete old image if exists
+            if ($product->image && File::exists(public_path($this->getImagePath() . $product->image))) {
+                File::delete(public_path($this->getImagePath() . $product->image));
+            }
+            
             $imageName = Str::slug($request->name) . '-' . time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path($destinationPath), $imageName);
-            $input['image'] = "/" . $destinationPath . $imageName;
+            $image->move(public_path($this->getImagePath()), $imageName);
+            $input['image'] = $imageName;
         } else {
             unset($input['image']);
         }
@@ -125,6 +138,14 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): RedirectResponse
     {
+        // Delete the product image if it exists
+        if ($product->image) {
+            $imagePath = public_path($this->getImagePath() . $product->image);
+            if (File::exists($imagePath)) {
+                File::delete($imagePath);
+            }
+        }
+
         $product->delete();
 
         return redirect()->route('admin.products.index')
