@@ -29,13 +29,20 @@
                         <td>{{ $order->payment_method === 'COD' ? 'Cash on Delivery' : 'Online Payment' }}</td>
                         <td>
                             <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#orderModal{{ $order->id }}">
-                                View Details
+                                Details
                             </button>
+                            
                             @if($order->status === 'processing')
-                                <form action="{{ route('orders.cancel', $order->id) }}" method="POST" style="display:inline;">
+                                @if($order->payment_method === 'online')
+                                    <a href="{{ route('payment.process', $order->id) }}" class="btn btn-sm btn-primary">
+                                        Pay Now
+                                    </a>
+                                @endif
+                                
+                                <form action="{{ route('orders.cancel', $order->id) }}" method="POST" class="d-inline">
                                     @csrf
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to cancel this order?');">
-                                        Cancel Order
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to cancel this order?')">
+                                        Cancel
                                     </button>
                                 </form>
                             @endif
@@ -45,63 +52,72 @@
             </tbody>
         </table>
         
-        <div class="d-flex justify-content-center">
-            {{ $orders->links() }}
-        </div>
-    @else
-        <p>You haven't placed any orders yet.</p>
-    @endif
-</div>
-
-<!-- Order Details Modals -->
-@foreach($orders as $order)
-    <div class="modal fade" id="orderModal{{ $order->id }}" tabindex="-1" aria-labelledby="orderModalLabel{{ $order->id }}" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="orderModalLabel{{ $order->id }}">Order #{{ $order->id }} Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p><strong>Date:</strong> {{ $order->created_at->format('M d, Y H:i') }}</p>
-                    <p><strong>Status:</strong> {{ ucfirst($order->status) }}</p>
-                    <p><strong>Payment Method:</strong> {{ $order->payment_method === 'COD' ? 'Cash on Delivery' : 'Online Payment' }}</p>
-                    <p><strong>Total:</strong> ${{ number_format($order->total, 2) }}</p>
-                    
-                    <h6>Order Items:</h6>
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>Product</th>
-                                <th>Quantity</th>
-                                <th>Price</th>
-                                <th>Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($order->items as $item)
-                                <tr>
-                                    <td>
-                                        <a href="{{ route('products.show', $item->product->id) }}" class="text-decoration-none">
-                                            <img src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
-                                            {{ $item->product->name }}
-                                        </a>
-                                    </td>
-                                    <td>{{ $item->quantity }}</td>
-                                    <td>${{ number_format($item->price, 2) }}</td>
-                                    <td>${{ number_format($item->price * $item->quantity, 2) }}</td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        {{ $orders->links() }}
+        
+        <!-- Order Detail Modals -->
+        @foreach($orders as $order)
+            <div class="modal fade" id="orderModal{{ $order->id }}" tabindex="-1" aria-labelledby="orderModalLabel{{ $order->id }}" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="orderModalLabel{{ $order->id }}">Order #{{ $order->id }} Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <p><strong>Order Date:</strong> {{ $order->created_at->format('M d, Y H:i') }}</p>
+                                    <p><strong>Status:</strong> {{ ucfirst($order->status) }}</p>
+                                    <p><strong>Payment Method:</strong> {{ $order->payment_method === 'COD' ? 'Cash on Delivery' : 'Online Payment' }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Name:</strong> {{ $order->name }}</p>
+                                    <p><strong>Contact:</strong> {{ $order->contact }}</p>
+                                    <p><strong>Address:</strong> {{ $order->address }}</p>
+                                </div>
+                            </div>
+                            
+                            <h6 class="mb-3">Order Items</h6>
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Price</th>
+                                        <th>Quantity</th>
+                                        <th class="text-end">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($order->items as $item)
+                                        <tr>
+                                            <td>{{ $item->product->name }}</td>
+                                            <td>${{ number_format($item->price, 2) }}</td>
+                                            <td>{{ $item->quantity }}</td>
+                                            <td class="text-end">${{ number_format($item->price * $item->quantity, 2) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="3" class="text-end">Total:</th>
+                                        <th class="text-end">${{ number_format($order->total, 2) }}</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
                 </div>
             </div>
+        @endforeach
+    @else
+        <div class="alert alert-info">
+            You don't have any orders yet. <a href="{{ route('products.index') }}">Start shopping</a>
         </div>
-    </div>
-@endforeach
+    @endif
+</div>
 @endsection
 
 @section('scripts')
