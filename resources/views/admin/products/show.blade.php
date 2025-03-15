@@ -62,23 +62,36 @@
                         <p class="text-muted">No specifications have been added for this product.</p>
                         <a href="{{ route('admin.specifications.edit', $product->id) }}" class="btn btn-sm btn-primary">Add Specifications</a>
                     @else
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Specification</th>
-                                        <th>Value</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($product->specifications as $spec)
-                                    <tr>
-                                        <td>{{ $spec->specificationType->display_name }}</td>
-                                        <td>{{ $spec->formatted_value }}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                        @php
+                            $groupedSpecs = $product->getSpecificationsByCategory();
+                        @endphp
+                        
+                        <div class="accordion" id="specificationsAccordion">
+                            @foreach($groupedSpecs as $categoryId => $data)
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading{{ $categoryId }}">
+                                        <button class="accordion-button {{ $loop->first ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $categoryId }}" aria-expanded="{{ $loop->first ? 'true' : 'false' }}" aria-controls="collapse{{ $categoryId }}">
+                                            {{ $data['category']->display_name }}
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{ $categoryId }}" class="accordion-collapse collapse {{ $loop->first ? 'show' : '' }}" aria-labelledby="heading{{ $categoryId }}" data-bs-parent="#specificationsAccordion">
+                                        <div class="accordion-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered">
+                                                    <tbody>
+                                                        @foreach($data['specifications'] as $spec)
+                                                        <tr>
+                                                            <th style="width: 40%">{{ $spec->specificationType->display_name }}</th>
+                                                            <td>{{ $spec->formatted_value }}</td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     @endif
                 </div>

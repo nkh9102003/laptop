@@ -21,6 +21,8 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'phone',
+        'date_of_birth',
     ];
 
     /**
@@ -43,9 +45,31 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'date_of_birth' => 'date',
         ];
     }
-    public function orders(){
+    
+    /**
+     * Get the orders for the user.
+     */
+    public function orders()
+    {
         return $this->hasMany(Order::class);
+    }
+    
+    /**
+     * Get the addresses for the user.
+     */
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
+    }
+    
+    /**
+     * Get the default address for the user.
+     */
+    public function defaultAddress()
+    {
+        return $this->hasOne(Address::class)->where('is_default', true);
     }
 }
