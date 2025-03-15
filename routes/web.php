@@ -12,6 +12,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SpecificationController;
+use App\Http\Controllers\CustomerController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -35,6 +36,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     
     // Specification routes
     Route::get('specifications/types', [SpecificationController::class, 'manageTypes'])->name('admin.specifications.types');
+    
+    // Category routes
+    Route::post('specifications/categories', [SpecificationController::class, 'storeCategory'])->name('admin.specifications.storeCategory');
+    Route::put('specifications/categories/{category}', [SpecificationController::class, 'updateCategory'])->name('admin.specifications.updateCategory');
+    Route::delete('specifications/categories/{category}', [SpecificationController::class, 'destroyCategory'])->name('admin.specifications.destroyCategory');
+    
+    // Specification type routes
     Route::post('specifications/types', [SpecificationController::class, 'storeType'])->name('admin.specifications.storeType');
     Route::put('specifications/types/{type}', [SpecificationController::class, 'updateType'])->name('admin.specifications.updateType');
     Route::delete('specifications/types/{type}', [SpecificationController::class, 'destroyType'])->name('admin.specifications.destroyType');
@@ -44,6 +52,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 });
 
 Route::middleware(['auth'])->group(function(){
+    // Customer profile routes
+    Route::get('/profile', [CustomerController::class, 'profile'])->name('customer.profile');
+    Route::put('/profile', [CustomerController::class, 'update'])->name('customer.update');
+    Route::put('/profile/password', [CustomerController::class, 'updatePassword'])->name('customer.password.update');
+    
+    // Order routes
     Route::get('/orders', [OrderController::class, 'customerIndex'])->name('orders.index');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancelOrder'])->name('orders.cancel');
@@ -53,9 +67,11 @@ Route::middleware(['auth'])->group(function(){
     Route::get('/payment/{order}/success', [PaymentController::class, 'success'])->name('payment.success');
     Route::get('/payment/{order}/cancel', [PaymentController::class, 'cancel'])->name('payment.cancel');
     
+    // Cart routes
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('/cart/add/{product}', [CartController::class, 'addToCart'])->name('cart.add');
     Route::patch('/cart/update/{id}', [CartController::class, 'update'])->name('cart.update');
     Route::delete('/cart/remove/{id}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 });
 

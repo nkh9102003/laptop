@@ -14,6 +14,8 @@ class SpecificationType extends Model
         'display_name',
         'unit',
         'description',
+        'category_id',
+        'display_order',
     ];
 
     /**
@@ -22,5 +24,13 @@ class SpecificationType extends Model
     public function specifications()
     {
         return $this->hasMany(ProductSpecification::class);
+    }
+    
+    /**
+     * Get the category for this specification type
+     */
+    public function category()
+    {
+        return $this->belongsTo(SpecificationCategory::class, 'category_id');
     }
 } 

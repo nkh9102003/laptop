@@ -82,4 +82,46 @@ class Product extends Model
             
         return $spec ? $spec->formatted_value : null;
     }
+    
+    /**
+     * Get specifications grouped by category
+     * 
+     * @return \Illuminate\Support\Collection
+     */
+    public function getSpecificationsByCategory()
+    {
+        // Eager load specifications with their types and categories
+        $this->load('specifications.specificationType.category');
+        
+        // Group specifications by category
+        $groupedSpecs = collect();
+        
+        // Get all categories with specifications for this product
+        $categories = SpecificationCategory::whereHas('specificationTypes.specifications', function($query) {
+            $query->where('product_id', $this->id);
+        })
+        ->orderBy('display_order')
+        ->get();
+        
+        foreach ($categories as $category) {
+            // Get specifications for this category and product
+            $specs = $this->specifications()
+                ->whereHas('specificationType', function($query) use ($category) {
+                    $query->where('category_id', $category->id);
+                })
+                ->with('specificationType')
+                ->get()
+                ->sortBy('specificationType.display_order');
+                
+            if ($specs->isNotEmpty()) {
+                // Use category ID as the key instead of the category object
+                $groupedSpecs->put($category->id, [
+                    'category' => $category,
+                    'specifications' => $specs
+                ]);
+            }
+        }
+        
+        return $groupedSpecs;
+    }
 }
