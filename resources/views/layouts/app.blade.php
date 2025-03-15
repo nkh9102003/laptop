@@ -29,6 +29,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('admin.orders.index') }}">Manage Orders</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ route('admin.specifications.types') }}">Manage Specifications</a>
+                        </li>
                     </ul>
                     <ul class="navbar-nav">
                         <li class="nav-item">

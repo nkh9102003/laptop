@@ -11,6 +11,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\SpecificationController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -31,6 +32,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::patch('orders/{order}/update-status', [OrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
     Route::get('reports', [ReportController::class, 'index'])->name('admin.reports.index');
     Route::get('reports/sales-by-product', [ReportController::class, 'salesByProduct'])->name('admin.reports.sales-by-product');
+    
+    // Specification routes
+    Route::get('specifications/types', [SpecificationController::class, 'manageTypes'])->name('admin.specifications.types');
+    Route::post('specifications/types', [SpecificationController::class, 'storeType'])->name('admin.specifications.storeType');
+    Route::put('specifications/types/{type}', [SpecificationController::class, 'updateType'])->name('admin.specifications.updateType');
+    Route::delete('specifications/types/{type}', [SpecificationController::class, 'destroyType'])->name('admin.specifications.destroyType');
+    
+    Route::get('products/{product}/specifications', [SpecificationController::class, 'edit'])->name('admin.specifications.edit');
+    Route::put('products/{product}/specifications', [SpecificationController::class, 'update'])->name('admin.specifications.update');
 });
 
 Route::middleware(['auth'])->group(function(){

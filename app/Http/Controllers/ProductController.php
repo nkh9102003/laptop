@@ -88,6 +88,7 @@ class ProductController extends Controller
      */
     public function show(Product $product): View
     {
+        $product->load('specifications.specificationType');
         return view('admin.products.show', compact('product'));
     }
 
@@ -178,6 +179,7 @@ class ProductController extends Controller
      */
     public function customerShow(Product $product): View
     {
+        $product->load('specifications.specificationType');
         return view('products.show', compact('product'));
     }
 }

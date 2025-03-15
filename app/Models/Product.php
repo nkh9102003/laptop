@@ -57,4 +57,29 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+    
+    /**
+     * Get the specifications for this product
+     */
+    public function specifications()
+    {
+        return $this->hasMany(ProductSpecification::class);
+    }
+    
+    /**
+     * Get a specific specification value by specification type name
+     * 
+     * @param string $typeName
+     * @return string|null
+     */
+    public function getSpecificationValue($typeName)
+    {
+        $spec = $this->specifications()
+            ->whereHas('specificationType', function($query) use ($typeName) {
+                $query->where('name', $typeName);
+            })
+            ->first();
+            
+        return $spec ? $spec->formatted_value : null;
+    }
 }

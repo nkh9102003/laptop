@@ -57,5 +57,32 @@
             </div>
         </div>
     </div>
+    
+    <!-- Product Specifications -->
+    @if(!$product->specifications->isEmpty())
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h4 class="mb-0">Technical Specifications</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <tbody>
+                                @foreach($product->specifications as $spec)
+                                <tr>
+                                    <th style="width: 30%">{{ $spec->specificationType->display_name }}</th>
+                                    <td>{{ $spec->formatted_value }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 @endsection
