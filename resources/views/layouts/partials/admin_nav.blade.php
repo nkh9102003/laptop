@@ -1,5 +1,8 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container">
+        <button id="toggle-sidebar" class="btn btn-link me-2 d-flex align-items-center" >
+            <i class="fas fa-bars"></i>
+        </button>
         <a class="navbar-brand" href="{{ route('admin.reports.index') }}">
             <i class="fas fa-laptop me-2"></i>{{ __('messages.welcome') }} Admin
         </a>
@@ -8,26 +11,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.products.index') }}">
-                        <i class="fas fa-laptop me-1"></i> {{ __('messages.products') }}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.brands.index') }}">
-                        <i class="fas fa-tag me-1"></i> {{ __('messages.brand') }}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.orders.index') }}">
-                        <i class="fas fa-shopping-bag me-1"></i> {{ __('messages.orders') }}
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.specifications.types') }}">
-                        <i class="fas fa-cogs me-1"></i> Specifications
-                    </a>
-                </li>
+                <!-- Management links moved to sidebar -->
             </ul>
             <ul class="navbar-nav">
                 <!-- Language Switcher -->

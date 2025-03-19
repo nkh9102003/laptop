@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('styles')
 <style>
@@ -198,20 +198,6 @@
         </div>
     </div>
 
-    <!-- Top 5 Brands by Revenue -->
-    <div class="card brand-revenue-card mb-4">
-        <div class="card-header">
-            <h5 class="mb-0">{{ __('messages.top_brands_by_revenue') }}</h5>
-        </div>
-        <div class="card-body">
-            @foreach($brandRevenue->take(5) as $revenue)
-            <div class="brand-revenue-item">
-                <div class="brand-name">{{ $revenue->brand_name }}</div>
-                <div class="revenue">${{ number_format($revenue->total_revenue, 2) }}</div>
-            </div>
-            @endforeach
-        </div>
-    </div>
 
     <!-- Chart Navigation -->
     <div class="chart-nav">
@@ -265,19 +251,63 @@
                 document.getElementById(`${targetChart}-container`).classList.add('active');
             });
         });
+
+        // Define vibrant colors for charts
+        const chartColors = {
+            primary: '#2563eb',  // blue
+            primaryLight: 'rgba(37, 99, 235, 0.7)',
+            secondary: '#10b981', // green
+            secondaryLight: 'rgba(16, 185, 129, 0.7)',
+            accent: '#f59e0b',   // amber
+            accentLight: 'rgba(245, 158, 11, 0.7)',
+            danger: '#ef4444',   // red
+            dangerLight: 'rgba(239, 68, 68, 0.7)',
+            purple: '#8b5cf6',   // purple
+            purpleLight: 'rgba(139, 92, 246, 0.7)',
+            pink: '#ec4899',     // pink
+            pinkLight: 'rgba(236, 72, 153, 0.7)',
+            indigo: '#6366f1',   // indigo
+            indigoLight: 'rgba(99, 102, 241, 0.7)',
+            cyan: '#06b6d4',     // cyan
+            cyanLight: 'rgba(6, 182, 212, 0.7)'
+        };
+
+        // Gradient backgrounds for charts
+        function createGradient(ctx, startColor, endColor) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, startColor);
+            gradient.addColorStop(1, endColor);
+            return gradient;
+        }
         
         // Revenue by Brand Chart
-        new Chart(document.getElementById('categoryRevenueChart'), {
+        const categoryCtx = document.getElementById('categoryRevenueChart').getContext('2d');
+        const barGradients = {!! json_encode($brandRevenue->pluck('brand_name')) !!}.map((_, i) => {
+            const colors = [
+                createGradient(categoryCtx, 'rgba(37, 99, 235, 0.8)', 'rgba(37, 99, 235, 0.2)'),
+                createGradient(categoryCtx, 'rgba(16, 185, 129, 0.8)', 'rgba(16, 185, 129, 0.2)'),
+                createGradient(categoryCtx, 'rgba(245, 158, 11, 0.8)', 'rgba(245, 158, 11, 0.2)'),
+                createGradient(categoryCtx, 'rgba(239, 68, 68, 0.8)', 'rgba(239, 68, 68, 0.2)'),
+                createGradient(categoryCtx, 'rgba(139, 92, 246, 0.8)', 'rgba(139, 92, 246, 0.2)'),
+                createGradient(categoryCtx, 'rgba(236, 72, 153, 0.8)', 'rgba(236, 72, 153, 0.2)'),
+                createGradient(categoryCtx, 'rgba(99, 102, 241, 0.8)', 'rgba(99, 102, 241, 0.2)'),
+                createGradient(categoryCtx, 'rgba(6, 182, 212, 0.8)', 'rgba(6, 182, 212, 0.2)')
+            ];
+            return colors[i % colors.length];
+        });
+        
+        new Chart(categoryCtx, {
             type: 'bar',
             data: {
                 labels: {!! json_encode($brandRevenue->pluck('brand_name')) !!},
                 datasets: [{
                     label: '{{ __("messages.revenue_by_brand") }}',
                     data: {!! json_encode($brandRevenue->pluck('total_revenue')) !!},
-                    backgroundColor: 'rgba(37, 99, 235, 0.5)',
-                    borderColor: 'rgb(37, 99, 235)',
-                    borderWidth: 1,
+                    backgroundColor: barGradients,
+                    borderColor: 'transparent',
+                    borderWidth: 0,
                     borderRadius: 8,
+                    hoverBackgroundColor: chartColors.primaryLight
                 }]
             },
             options: {
@@ -286,6 +316,23 @@
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return '$' + context.raw.toLocaleString();
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -294,33 +341,59 @@
                         grid: {
                             display: true,
                             drawBorder: false,
+                            color: 'rgba(200, 200, 200, 0.2)'
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
                         }
                     },
                     x: {
                         grid: {
                             display: false,
-                            drawBorder: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
                         }
                     }
+                },
+                animation: {
+                    duration: 1500,
+                    easing: 'easeOutQuart'
                 }
             }
         });
 
         // Daily Revenue Chart
-        new Chart(document.getElementById('revenueByDateChart'), {
+        const dateCtx = document.getElementById('revenueByDateChart').getContext('2d');
+        const dateGradient = createGradient(dateCtx, 'rgba(37, 99, 235, 0.4)', 'rgba(37, 99, 235, 0.0)');
+        
+        new Chart(dateCtx, {
             type: 'line',
             data: {
                 labels: {!! json_encode($revenueByDate->pluck('date')) !!},
                 datasets: [{
                     label: '{{ __("messages.daily_revenue") }}',
                     data: {!! json_encode($revenueByDate->pluck('total_revenue')) !!},
-                    borderColor: 'rgb(37, 99, 235)',
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                    tension: 0.3,
+                    borderColor: chartColors.primary,
+                    backgroundColor: dateGradient,
+                    tension: 0.4,
                     fill: true,
-                    pointBackgroundColor: 'rgb(37, 99, 235)',
+                    pointBackgroundColor: 'white',
+                    pointBorderColor: chartColors.primary,
+                    pointBorderWidth: 2,
                     pointRadius: 4,
                     pointHoverRadius: 6,
+                    pointHoverBackgroundColor: 'white',
+                    pointHoverBorderColor: chartColors.primary,
+                    pointHoverBorderWidth: 3
                 }]
             },
             options: {
@@ -329,6 +402,23 @@
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return '$' + context.raw.toLocaleString();
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -337,30 +427,59 @@
                         grid: {
                             display: true,
                             drawBorder: false,
+                            color: 'rgba(200, 200, 200, 0.2)'
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
                         }
                     },
                     x: {
                         grid: {
                             display: false,
-                            drawBorder: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
                         }
                     }
+                },
+                animation: {
+                    duration: 1500,
+                    easing: 'easeOutQuart'
                 }
             }
         });
 
         // Monthly Revenue Chart
-        new Chart(document.getElementById('revenueByMonthChart'), {
+        const monthCtx = document.getElementById('revenueByMonthChart').getContext('2d');
+        const monthGradients = {!! json_encode($revenueByMonth->map(function($item) { return $item->year . '-' . $item->month; })) !!}.map((_, i) => {
+            const colors = [
+                createGradient(monthCtx, 'rgba(99, 102, 241, 0.8)', 'rgba(99, 102, 241, 0.2)'),
+                createGradient(monthCtx, 'rgba(37, 99, 235, 0.8)', 'rgba(37, 99, 235, 0.2)'),
+                createGradient(monthCtx, 'rgba(6, 182, 212, 0.8)', 'rgba(6, 182, 212, 0.2)')
+            ];
+            return colors[i % colors.length];
+        });
+        
+        new Chart(monthCtx, {
             type: 'bar',
             data: {
                 labels: {!! json_encode($revenueByMonth->map(function($item) { return $item->year . '-' . $item->month; })) !!},
                 datasets: [{
                     label: '{{ __("messages.monthly_revenue") }}',
                     data: {!! json_encode($revenueByMonth->pluck('total_revenue')) !!},
-                    backgroundColor: 'rgba(37, 99, 235, 0.5)',
-                    borderColor: 'rgb(37, 99, 235)',
-                    borderWidth: 1,
+                    backgroundColor: monthGradients,
+                    borderColor: 'transparent',
+                    borderWidth: 0,
                     borderRadius: 8,
+                    hoverBackgroundColor: chartColors.indigoLight
                 }]
             },
             options: {
@@ -369,6 +488,23 @@
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return '$' + context.raw.toLocaleString();
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -377,30 +513,60 @@
                         grid: {
                             display: true,
                             drawBorder: false,
+                            color: 'rgba(200, 200, 200, 0.2)'
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
                         }
                     },
                     x: {
                         grid: {
                             display: false,
-                            drawBorder: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
                         }
                     }
+                },
+                animation: {
+                    duration: 1500,
+                    easing: 'easeOutQuart'
                 }
             }
         });
 
         // Yearly Revenue Chart
-        new Chart(document.getElementById('revenueByYearChart'), {
+        const yearCtx = document.getElementById('revenueByYearChart').getContext('2d');
+        const yearGradients = {!! json_encode($revenueByYear->pluck('year')) !!}.map((_, i) => {
+            const colors = [
+                createGradient(yearCtx, 'rgba(6, 182, 212, 0.8)', 'rgba(6, 182, 212, 0.2)'),
+                createGradient(yearCtx, 'rgba(245, 158, 11, 0.8)', 'rgba(245, 158, 11, 0.2)'),
+                createGradient(yearCtx, 'rgba(16, 185, 129, 0.8)', 'rgba(16, 185, 129, 0.2)'),
+                createGradient(yearCtx, 'rgba(139, 92, 246, 0.8)', 'rgba(139, 92, 246, 0.2)')
+            ];
+            return colors[i % colors.length];
+        });
+        
+        new Chart(yearCtx, {
             type: 'bar',
             data: {
                 labels: {!! json_encode($revenueByYear->pluck('year')) !!},
                 datasets: [{
                     label: '{{ __("messages.yearly_revenue") }}',
                     data: {!! json_encode($revenueByYear->pluck('total_revenue')) !!},
-                    backgroundColor: 'rgba(37, 99, 235, 0.5)',
-                    borderColor: 'rgb(37, 99, 235)',
-                    borderWidth: 1,
+                    backgroundColor: yearGradients,
+                    borderColor: 'transparent',
+                    borderWidth: 0,
                     borderRadius: 8,
+                    hoverBackgroundColor: chartColors.cyanLight
                 }]
             },
             options: {
@@ -409,6 +575,23 @@
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        displayColors: false,
+                        callbacks: {
+                            label: function(context) {
+                                return '$' + context.raw.toLocaleString();
+                            }
+                        }
                     }
                 },
                 scales: {
@@ -417,14 +600,32 @@
                         grid: {
                             display: true,
                             drawBorder: false,
+                            color: 'rgba(200, 200, 200, 0.2)'
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            },
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
                         }
                     },
                     x: {
                         grid: {
                             display: false,
-                            drawBorder: false,
+                            drawBorder: false
+                        },
+                        ticks: {
+                            font: {
+                                size: 12
+                            }
                         }
                     }
+                },
+                animation: {
+                    duration: 1500,
+                    easing: 'easeOutQuart'
                 }
             }
         });
@@ -438,19 +639,18 @@
                     label: '{{ __("messages.revenue_by_payment") }}',
                     data: {!! json_encode($revenueByPaymentMethod->pluck('total_revenue')) !!},
                     backgroundColor: [
-                        'rgba(37, 99, 235, 0.7)',
-                        'rgba(59, 130, 246, 0.7)',
-                        'rgba(96, 165, 250, 0.7)',
-                        'rgba(147, 197, 253, 0.7)'
+                        chartColors.primary,
+                        chartColors.secondary,
+                        chartColors.accent,
+                        chartColors.purple,
+                        chartColors.pink,
+                        chartColors.indigo,
+                        chartColors.cyan
                     ],
-                    borderColor: [
-                        'rgb(37, 99, 235)',
-                        'rgb(59, 130, 246)',
-                        'rgb(96, 165, 250)',
-                        'rgb(147, 197, 253)'
-                    ],
-                    borderWidth: 1,
-                    hoverOffset: 4
+                    borderColor: 'white',
+                    borderWidth: 2,
+                    hoverOffset: 10,
+                    hoverBorderWidth: 0
                 }]
             },
             options: {
@@ -461,11 +661,39 @@
                         position: 'bottom',
                         labels: {
                             padding: 20,
-                            boxWidth: 12
+                            boxWidth: 12,
+                            font: {
+                                size: 13
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        padding: 12,
+                        titleFont: {
+                            size: 14,
+                            weight: 'bold'
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                const total = context.dataset.data.reduce((acc, curr) => acc + curr, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `$${value.toLocaleString()} (${percentage}%)`;
+                            }
                         }
                     }
                 },
-                cutout: '70%'
+                cutout: '70%',
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 1500,
+                    easing: 'easeOutQuart'
+                }
             }
         });
     });

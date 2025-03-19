@@ -14,6 +14,14 @@
     --warning: #f59e0b;
     --success: #10b981;
     --info: #3b82f6;
+    --sidebar-width: 250px;
+    --dashboard-bg: #f1f5f9;
+    --card-bg: #ffffff;
+    --card-border: #e2e8f0;
+    --chart-primary: #3b82f6;
+    --chart-secondary: #10b981;
+    --chart-accent: #f59e0b;
+    --chart-danger: #ef4444;
 }
 
 /* Typography */
@@ -246,4 +254,207 @@ footer {
     padding: 3rem 0;
     margin-top: 4rem;
     border-top: 1px solid var(--gray-light);
+}
+
+/* Admin Dashboard Styling */
+.admin-panel {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-container {
+    flex: 1;
+    display: flex;
+    position: relative;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--card-bg);
+    position: fixed;
+    top: 56px; /* Navbar height */
+    bottom: 0;
+    left: -100%;
+    z-index: 1040;
+    transition: left 0.3s ease;
+    border-right: 1px solid var(--card-border);
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+    overflow-y: auto;
+}
+
+.sidebar.active {
+    left: 0;
+}
+
+.sidebar-header {
+    padding: 1rem;
+    background-color: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sidebar-header h5 {
+    margin: 0;
+    color: white;
+}
+
+.sidebar-body {
+    padding: 1rem 0;
+}
+
+.sidebar .nav-link {
+    padding: 0.75rem 1.5rem;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background-color: rgba(59, 130, 246, 0.1);
+    color: var(--primary);
+    border-left-color: var(--primary);
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 0;
+    transition: margin-left 0.3s ease;
+    min-height: calc(100vh - 56px);
+    padding-top: 1rem;
+    width: 100%;
+}
+
+/* Overlay */
+#sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1030;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Toggle Button */
+#toggle-sidebar {
+    color: var(--dark);
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+
+#toggle-sidebar:hover {
+    color: var(--primary);
+    transform: scale(1.1);
+}
+
+#close-sidebar {
+    color: white;
+    font-size: 1.25rem;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+#close-sidebar:hover {
+    transform: scale(1.1);
+}
+
+/* Desktop Layout */
+@media (min-width: 1200px) {
+    .sidebar {
+        left: 0;
+    }
+
+    .main-content {
+        margin-left: var(--sidebar-width);
+        width: calc(100% - var(--sidebar-width));
+    }
+
+    #toggle-sidebar,
+    #close-sidebar,
+    #sidebar-overlay {
+        display: none;
+    }
+}
+
+/* Mobile Layout */
+@media (max-width: 1199.98px) {
+    .sidebar {
+        left: -100%;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    background-color: var(--card-bg);
+    border-radius: 0.75rem;
+    border: 1px solid var(--card-border);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-card .card-title {
+    color: var(--dark);
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.dashboard-card .card-value {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+/* Chart Colors */
+.chart-primary {
+    color: var(--chart-primary);
+}
+
+.chart-secondary {
+    color: var(--chart-secondary);
+}
+
+.chart-accent {
+    color: var(--chart-accent);
+}
+
+.chart-danger {
+    color: var(--chart-danger);
 }

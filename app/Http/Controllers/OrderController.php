@@ -123,7 +123,7 @@ class OrderController extends Controller
     }
     
     public function cancelOrder(Order $order)
-    {
+    {       
         // Check if the order is still processing
         if ($order->status === 'processing') {
             $order->update(['status' => 'cancelled']);
