@@ -181,4 +181,25 @@
     </div>
 </div>
 
+<<<<<<< HEAD
+=======
+<script>
+    function incrementQuantity() {
+        const input = document.getElementById('quantity');
+        const max = parseInt(input.getAttribute('max'));
+        const currentValue = parseInt(input.value);
+        if (currentValue < max) {
+            input.value = currentValue + 1;
+        }
+    }
+    
+    function decrementQuantity() {
+        const input = document.getElementById('quantity');
+        const currentValue = parseInt(input.value);
+        if (currentValue > 1) {
+            input.value = currentValue - 1;
+        }
+    }
+</script>
+>>>>>>> origin/feature/product-specifications
 @endsection
