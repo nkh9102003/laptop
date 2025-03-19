@@ -23,6 +23,9 @@ class ReportController extends Controller
         // Number of products
         $totalProducts = Product::count();
 
+        // Total revenue
+        $totalRevenue = DB::table('payments')->sum('amount');
+
         // Total revenue by brand
         $brandRevenue = DB::table('order_items')
             ->select('products.brand_id', 'brands.name as brand_name', DB::raw('SUM(order_items.price * order_items.quantity) as total_revenue'))
@@ -31,6 +34,7 @@ class ReportController extends Controller
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->where('orders.status', 'paid')
             ->groupBy('products.brand_id', 'brands.name')
+            ->orderBy('total_revenue', 'desc')
             ->get();
 
         // Revenue by date from payments
@@ -57,16 +61,18 @@ class ReportController extends Controller
             ->orderBy('year', 'desc')
             ->take(5)  // Last 5 years
             ->get();
+        
         // Revenue by payment method
         $revenueByPaymentMethod = DB::table('payments')
-        ->select('payment_method', DB::raw('SUM(amount) as total_revenue'))
-        ->groupBy('payment_method')
-        ->get();
+            ->select('payment_method', DB::raw('SUM(amount) as total_revenue'))
+            ->groupBy('payment_method')
+            ->get();
 
         return view('admin.reports.index', compact(
             'totalCustomers',
             'totalOrders',
             'totalProducts',
+            'totalRevenue',
             'brandRevenue',
             'revenueByDate',
             'revenueByMonth',

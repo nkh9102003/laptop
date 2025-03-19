@@ -6,14 +6,14 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6 mb-4 mb-lg-0">
-                <h1 class="display-5 fw-bold mb-3">Find Your Perfect Laptop</h1>
-                <p class="lead mb-4">Discover premium laptops for work, gaming, and everyday use. Shop the latest models from top brands with exclusive deals.</p>
+                <h1 class="display-5 fw-bold mb-3">{{ __('messages.hero_title') }}</h1>
+                <p class="lead mb-4">{{ __('messages.hero_subtitle') }}</p>
                 <div class="d-flex gap-3">
                     <a href="{{ route('products.index') }}" class="btn btn-primary btn-lg">
-                        Shop Now <i class="fas fa-arrow-right ms-2"></i>
+                        {{ __('messages.shop_now') }} <i class="fas fa-arrow-right ms-2"></i>
                     </a>
                     <a href="#featured-products" class="btn btn-outline-primary btn-lg">
-                        View Featured
+                        {{ __('messages.view_featured') }}
                     </a>
                 </div>
             </div>
@@ -27,7 +27,7 @@
 <!-- Categories Section -->
 <section class="mb-5">
     <div class="container">
-        <h2 class="text-center mb-4">Shop by Category</h2>
+        <h2 class="text-center mb-4">{{ __('messages.shop_by_category') }}</h2>
         <div class="row g-4">
             <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm category-card">
@@ -35,9 +35,9 @@
                         <div class="category-icon mb-3">
                             <i class="fas fa-laptop fa-3x text-primary"></i>
                         </div>
-                        <h3 class="h5">Business Laptops</h3>
-                        <p class="text-muted">Powerful and reliable laptops for professionals.</p>
-                        <a href="{{ route('products.index') }}?category=business" class="btn btn-outline-primary mt-2">Explore</a>
+                        <h3 class="h5">{{ __('messages.business_laptops') }}</h3>
+                        <p class="text-muted">{{ __('messages.business_laptops_desc') }}</p>
+                        <a href="{{ route('products.index') }}?category=business" class="btn btn-outline-primary mt-2">{{ __('messages.explore') }}</a>
                     </div>
                 </div>
             </div>
@@ -47,9 +47,9 @@
                         <div class="category-icon mb-3">
                             <i class="fas fa-gamepad fa-3x text-primary"></i>
                         </div>
-                        <h3 class="h5">Gaming Laptops</h3>
-                        <p class="text-muted">High-performance laptops for immersive gaming.</p>
-                        <a href="{{ route('products.index') }}?category=gaming" class="btn btn-outline-primary mt-2">Explore</a>
+                        <h3 class="h5">{{ __('messages.gaming_laptops') }}</h3>
+                        <p class="text-muted">{{ __('messages.gaming_laptops_desc') }}</p>
+                        <a href="{{ route('products.index') }}?category=gaming" class="btn btn-outline-primary mt-2">{{ __('messages.explore') }}</a>
                     </div>
                 </div>
             </div>
@@ -59,9 +59,9 @@
                         <div class="category-icon mb-3">
                             <i class="fas fa-graduation-cap fa-3x text-primary"></i>
                         </div>
-                        <h3 class="h5">Student Laptops</h3>
-                        <p class="text-muted">Affordable and portable laptops for students.</p>
-                        <a href="{{ route('products.index') }}?category=student" class="btn btn-outline-primary mt-2">Explore</a>
+                        <h3 class="h5">{{ __('messages.student_laptops') }}</h3>
+                        <p class="text-muted">{{ __('messages.student_laptops_desc') }}</p>
+                        <a href="{{ route('products.index') }}?category=student" class="btn btn-outline-primary mt-2">{{ __('messages.explore') }}</a>
                     </div>
                 </div>
             </div>
@@ -73,8 +73,8 @@
 <section id="featured-products" class="mb-5">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="mb-0">Featured Products</h2>
-            <a href="{{ route('products.index') }}" class="btn btn-outline-primary">View All <i class="fas fa-arrow-right ms-1"></i></a>
+            <h2 class="mb-0">{{ __('messages.featured_products') }}</h2>
+            <a href="{{ route('products.index') }}" class="btn btn-outline-primary">{{ __('messages.view_all') }} <i class="fas fa-arrow-right ms-1"></i></a>
         </div>
         <div class="row g-4">
             @foreach($featuredProducts as $product)
@@ -84,7 +84,7 @@
                         <img src="{{ $product->image_url }}" class="card-img-top product-image" alt="{{ $product->name }}">
                         <div class="overlay">
                             <a href="{{ route('products.show', $product->id) }}" class="btn btn-light">
-                                <i class="fas fa-eye me-1"></i> View Details
+                                <i class="fas fa-eye me-1"></i> {{ __('messages.view_details') }}
                             </a>
                         </div>
                         @if($product->discount_percentage > 0)
@@ -131,15 +131,15 @@
 <!-- Features Section -->
 <section class="py-5 bg-light rounded-3 mb-5">
     <div class="container">
-        <h2 class="text-center mb-5">Why Choose Us</h2>
+        <h2 class="text-center mb-5">{{ __('messages.why_choose_us') }}</h2>
         <div class="row g-4">
             <div class="col-md-3">
                 <div class="text-center">
                     <div class="feature-icon mb-3">
                         <i class="fas fa-truck fa-3x text-primary"></i>
                     </div>
-                    <h5>Free Shipping</h5>
-                    <p class="text-muted">On all orders over $99</p>
+                    <h5>{{ __('messages.free_shipping') }}</h5>
+                    <p class="text-muted">{{ __('messages.free_shipping_desc') }}</p>
                 </div>
             </div>
             <div class="col-md-3">
@@ -147,8 +147,8 @@
                     <div class="feature-icon mb-3">
                         <i class="fas fa-undo fa-3x text-primary"></i>
                     </div>
-                    <h5>Easy Returns</h5>
-                    <p class="text-muted">30-day return policy</p>
+                    <h5>{{ __('messages.easy_returns') }}</h5>
+                    <p class="text-muted">{{ __('messages.easy_returns_desc') }}</p>
                 </div>
             </div>
             <div class="col-md-3">
@@ -156,8 +156,8 @@
                     <div class="feature-icon mb-3">
                         <i class="fas fa-lock fa-3x text-primary"></i>
                     </div>
-                    <h5>Secure Payment</h5>
-                    <p class="text-muted">100% secure checkout</p>
+                    <h5>{{ __('messages.secure_payment') }}</h5>
+                    <p class="text-muted">{{ __('messages.secure_payment_desc') }}</p>
                 </div>
             </div>
             <div class="col-md-3">
@@ -165,8 +165,8 @@
                     <div class="feature-icon mb-3">
                         <i class="fas fa-headset fa-3x text-primary"></i>
                     </div>
-                    <h5>24/7 Support</h5>
-                    <p class="text-muted">Dedicated support team</p>
+                    <h5>{{ __('messages.support') }}</h5>
+                    <p class="text-muted">{{ __('messages.support_desc') }}</p>
                 </div>
             </div>
         </div>

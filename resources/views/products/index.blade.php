@@ -4,7 +4,7 @@
 <div class="container py-4">
     <!-- Page Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2 mb-0">Our Products</h1>
+        <h1 class="h2 mb-0">{{ __('messages.all_products') }}</h1>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{{ url('/') }}" class="text-decoration-none">Home</a></li>
@@ -56,13 +56,12 @@
 
                         <!-- Sort By -->
                         <div class="mb-4">
-                            <label for="sort" class="form-label fw-medium">Sort By</label>
+                            <label for="sort" class="form-label fw-medium">{{ __('messages.sort_by') }}</label>
                             <select name="sort" id="sort" class="form-select">
-                                <option value="newest" {{ request()->input('sort') == 'newest' ? 'selected' : '' }}>Newest</option>
-                                <option value="price_low" {{ request()->input('sort') == 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
-                                <option value="price_high" {{ request()->input('sort') == 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
-                                <option value="name_asc" {{ request()->input('sort') == 'name_asc' ? 'selected' : '' }}>Name: A to Z</option>
-                                <option value="name_desc" {{ request()->input('sort') == 'name_desc' ? 'selected' : '' }}>Name: Z to A</option>
+                                <option value="newest" {{ request()->input('sort') == 'newest' ? 'selected' : '' }}>{{ __('messages.newest') }}</option>
+                                <option value="price_low" {{ request()->input('sort') == 'price_low' ? 'selected' : '' }}>{{ __('messages.price_low_high') }}</option>
+                                <option value="price_high" {{ request()->input('sort') == 'price_high' ? 'selected' : '' }}>{{ __('messages.price_high_low') }}</option>
+                                <option value="most_sold" {{ request()->input('sort') == 'most_sold' ? 'selected' : '' }}>{{ __('messages.most_sold') }}</option>
                             </select>
                         </div>
 

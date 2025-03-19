@@ -168,7 +168,33 @@ class ProductController extends Controller
             $query->where('brand_id', $brandId);
         }
 
-        $products = $query->with('brand')->latest()->paginate(12);
+        // Price range filter
+        if ($minPrice = $request->input('min_price')) {
+            $query->where('price', '>=', $minPrice);
+        }
+        if ($maxPrice = $request->input('max_price')) {
+            $query->where('price', '<=', $maxPrice);
+        }
+
+        // Sorting
+        switch ($request->input('sort')) {
+            case 'price_low':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_high':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'most_sold':
+                $query->withCount('orderItems')
+                      ->orderBy('order_items_count', 'desc');
+                break;
+            case 'newest':
+            default:
+                $query->latest();
+                break;
+        }
+
+        $products = $query->with('brand')->paginate(12);
         $brands = Brand::all();
 
         return view('products.index', compact('products', 'brands'));

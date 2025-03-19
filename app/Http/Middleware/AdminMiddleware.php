@@ -12,15 +12,16 @@ class AdminMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
      */
     public function handle(Request $request, Closure $next)
     {
-        
-        if(Auth::check() && Auth::user()->role === 'admin'){
+        if (Auth::check() && Auth::user()->role === 'admin') {
             return $next($request);
         }
-        return redirect('login')->withErrors(['Bạn không có quyền truy cập dành cho admin.']);
         
+        return redirect()->route('home')->with('error', 'You do not have access to this section.');
     }
 }

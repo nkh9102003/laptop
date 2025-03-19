@@ -3,9 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BrandController;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
-use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
@@ -13,6 +11,8 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SpecificationController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\LanguageController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,7 +25,7 @@ Route::post('register', [AuthController::class, 'register']);
 Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+Route::middleware('admin-auth')->prefix('admin')->group(function () {
     Route::resource('products', ProductController::class, [ 'as' => 'admin']);
     Route::resource('brands', BrandController::class, [ 'as' => 'admin']);
     Route::get('orders', [OrderController::class, 'index'])->name('admin.orders.index');
@@ -75,3 +75,6 @@ Route::middleware(['auth'])->group(function(){
     Route::delete('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 });
 
+// Language routes
+Route::get('language/{locale}', [LanguageController::class, 'switch'])->name('language.switch');
+    
