@@ -12,6 +12,8 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SpecificationController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\FlashSaleController;
+use App\Http\Controllers\FlashSaleFrontendController;
 
 
 Route::get('/', function () {
@@ -26,6 +28,7 @@ Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware('admin-auth')->prefix('admin')->group(function () {
+    Route::resource('flash-sales', FlashSaleController::class, [ 'as' => 'admin']);
     Route::resource('products', ProductController::class, [ 'as' => 'admin']);
     Route::resource('brands', BrandController::class, [ 'as' => 'admin']);
     Route::get('orders', [OrderController::class, 'index'])->name('admin.orders.index');
@@ -77,4 +80,8 @@ Route::middleware(['auth'])->group(function(){
 
 // Language routes
 Route::get('language/{locale}', [LanguageController::class, 'switch'])->name('language.switch');
+
+// Frontend Flash Sale Routes
+Route::get('flash-sales', [FlashSaleFrontendController::class, 'index'])->name('flash-sales.index');
+Route::get('flash-sales/{flashSale}', [FlashSaleFrontendController::class, 'show'])->name('flash-sales.show');
     

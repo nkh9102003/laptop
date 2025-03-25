@@ -13,6 +13,11 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link" href="{{ route('admin.flash-sales.index') }}">
+                    <i class="fas fa-bolt me-2"></i> Flash Sales
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="{{ route('admin.brands.index') }}">
                     <i class="fas fa-tag me-2"></i> {{ __('messages.brand') }}
                 </a>

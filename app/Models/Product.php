@@ -65,6 +65,40 @@ class Product extends Model
     {
         return $this->hasMany(ProductSpecification::class);
     }
+
+    /**
+     * Get active flash sales for this product
+     */
+    public function activeFlashSales()
+    {
+        return $this->belongsToMany(FlashSale::class, 'flash_sale_items')
+            ->where('is_active', true)
+            ->where('start_time', '<=', now())
+            ->where('end_time', '>=', now())
+            ->withPivot('discount_price', 'quantity_limit', 'sold_count')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the current flash sale price for this product
+     */
+    public function getCurrentFlashSalePriceAttribute()
+    {
+        $activeFlashSale = $this->activeFlashSales()->first();
+        return $activeFlashSale ? $activeFlashSale->pivot->discount_price : $this->price;
+    }
+
+    /**
+     * Get the current discount percentage for this product
+     */
+    public function getCurrentDiscountPercentageAttribute()
+    {
+        $activeFlashSale = $this->activeFlashSales()->first();
+        if (!$activeFlashSale) {
+            return 0;
+        }
+        return round((($this->price - $activeFlashSale->pivot->discount_price) / $this->price) * 100);
+    }
     
     /**
      * Get a specific specification value by specification type name

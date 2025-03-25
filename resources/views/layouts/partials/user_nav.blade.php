@@ -36,7 +36,6 @@
                                 <img src="https://flagcdn.com/w20/vn.png" alt="Vietnamese" class="me-2" width="20"> {{ __('messages.vietnamese') }}
                             </a>
                         </li>
-                        <p> {{ config('app.locale') }}</p>
                     </ul>
                 </li>
                 
