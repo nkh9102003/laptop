@@ -30,7 +30,7 @@ class FlashSaleController extends Controller
             'description' => 'nullable|string',
             'start_time' => 'required|date|after:now',
             'end_time' => 'required|date|after:start_time',
-            'is_active' => 'boolean|nullable',
+            'is_active' => 'boolean',
             'products' => 'required|array',
             'products.*.id' => 'required|exists:products,id',
             'products.*.discount_price' => 'required|numeric|min:0',
@@ -45,7 +45,7 @@ class FlashSaleController extends Controller
                 'description' => $validated['description'],
                 'start_time' => $validated['start_time'],
                 'end_time' => $validated['end_time'],
-                'is_active' => $request->has('is_active') ? (bool)$request->input('is_active') : true,
+                'is_active' => (bool)$request->input('is_active', 1),
             ]);
 
             foreach ($validated['products'] as $product) {
@@ -95,7 +95,7 @@ class FlashSaleController extends Controller
                 'description' => $validated['description'],
                 'start_time' => $validated['start_time'],
                 'end_time' => $validated['end_time'],
-                'is_active' => $request->has('is_active') ? (bool)$request->input('is_active') : true,
+                'is_active' => (bool)$request->input('is_active', 0),
             ]);
 
             // Sync products with their new prices and limits
@@ -103,6 +103,7 @@ class FlashSaleController extends Controller
                 return [$product['id'] => [
                     'discount_price' => $product['discount_price'],
                     'quantity_limit' => $product['quantity_limit'] ?? null,
+                    'sold_count' => 0, // Reset sold count for simplicity
                 ]];
             })->toArray();
 
@@ -114,7 +115,7 @@ class FlashSaleController extends Controller
                 ->with('success', 'Flash sale updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Failed to update flash sale. Please try again.');
+            return back()->with('error', 'Failed to update flash sale. Please try again: ' . $e->getMessage());
         }
     }
 

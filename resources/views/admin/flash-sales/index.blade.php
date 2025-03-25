@@ -42,20 +42,15 @@
                                 <td>{{ $flashSale->start_time->format('Y-m-d H:i') }}</td>
                                 <td>{{ $flashSale->end_time->format('Y-m-d H:i') }}</td>
                                 <td>
-                                    @switch($flashSale->status)
-                                        @case('active')
-                                            <span class="badge bg-success">Active</span>
-                                            @break
-                                        @case('ended')
-                                            <span class="badge bg-danger">Ended</span>
-                                            @break
-                                        @case('upcoming')
-                                            <span class="badge bg-warning text-dark">Upcoming</span>
-                                            @break
-                                        @case('disabled')
-                                            <span class="badge bg-secondary">Disabled</span>
-                                            @break
-                                    @endswitch
+                                    @if(!$flashSale->is_active)
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    @elseif($flashSale->start_time > now())
+                                        <span class="badge bg-warning">Upcoming</span>
+                                    @elseif($flashSale->end_time < now())
+                                        <span class="badge bg-danger">Ended</span>
+                                    @else
+                                        <span class="badge bg-success">Active</span>
+                                    @endif
                                 </td>
                                 <td>{{ $flashSale->products->count() }} products</td>
                                 <td>

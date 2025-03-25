@@ -179,6 +179,7 @@
 
 @push('scripts')
 <script>
+console.log('Hello from create flash sale page!');
 document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('products-container');
     const addButton = document.getElementById('add-product');
