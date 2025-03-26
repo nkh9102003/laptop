@@ -98,12 +98,23 @@ class FlashSaleController extends Controller
                 'is_active' => (bool)$request->input('is_active', 0),
             ]);
 
-            // Sync products with their new prices and limits
-            $syncData = collect($validated['products'])->mapWithKeys(function ($product) {
-                return [$product['id'] => [
+            // Get existing products with their sold_count values
+            $existingProducts = $flashSale->products->keyBy('id');
+            
+            // Sync products with their new prices and limits while preserving existing sold_count values
+            $syncData = collect($validated['products'])->mapWithKeys(function ($product) use ($existingProducts) {
+                $productId = $product['id'];
+                $soldCount = 0;
+                
+                // If the product was already part of this flash sale, keep its existing sold_count
+                if ($existingProducts->has($productId)) {
+                    $soldCount = $existingProducts->get($productId)->pivot->sold_count;
+                }
+                
+                return [$productId => [
                     'sale_price' => $product['discount_price'],
                     'max_quantity' => $product['quantity_limit'] ?? null,
-                    'sold_count' => 0, // Reset sold count for simplicity
+                    'sold_count' => $soldCount,
                 ]];
             })->toArray();
 

@@ -15,9 +15,9 @@
         <div class="col-lg-6 mb-4 mb-lg-0">
             <div class="product-image-container mb-4 position-relative">
                 <img src="{{ $product->image_url }}" class="img-fluid rounded shadow-sm" alt="{{ $product->name }}">
-                @if(isset($product->discount_percentage) && $product->discount_percentage > 0)
+                @if($product->hasActiveFlashSale())
                 <span class="badge bg-danger position-absolute top-0 start-0 m-3">
-                    -{{ $product->discount_percentage }}%
+                    -{{ $product->current_discount_percentage }}%
                 </span>
                 @endif
             </div>
@@ -39,7 +39,22 @@
                 <h1 class="h2 mb-3">{{ $product->name }}</h1>
                 
                 <div class="mb-4">
+                    @if($product->hasActiveFlashSale())
+                    <div class="mb-2">
+                        <h3 class="text-danger fw-bold">${{ number_format($product->current_flash_sale_price, 2) }}</h3>
+                        <p class="text-muted">
+                            <span class="text-decoration-line-through">${{ number_format($product->price, 2) }}</span>
+                            <span class="badge bg-danger ms-2">{{ $product->current_discount_percentage }}% OFF</span>
+                        </p>
+                        @if($product->active_flash_sale)
+                        <div class="flash-sale-timer mt-2" data-end="{{ $product->active_flash_sale->end_time }}">
+                            <span class="badge bg-danger">Ends in: <span class="timer-display">00:00:00</span></span>
+                        </div>
+                        @endif
+                    </div>
+                    @else
                     <h3 class="text-primary fw-bold">${{ number_format($product->price, 2) }}</h3>
+                    @endif
                 </div>
                 
                 <div class="mb-4">
@@ -58,12 +73,44 @@
                         </span>
                     @endif
                 </div>
+
+                @if($product->hasActiveFlashSale() && $product->active_flash_sale)
+                    @php
+                        $flashSale = $product->active_flash_sale;
+                        $pivot = $flashSale->products->where('id', $product->id)->first()->pivot;
+                        $soldPercentage = ($pivot->max_quantity > 0) 
+                            ? min(100, ($pivot->sold_count / $pivot->max_quantity) * 100)
+                            : 0;
+                        $remaining = $pivot->max_quantity > 0 ? $pivot->max_quantity - $pivot->sold_count : null;
+                    @endphp
+                    
+                    @if($pivot->max_quantity > 0)
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <strong>Flash Sale Progress:</strong>
+                            <span>{{ $pivot->sold_count }} / {{ $pivot->max_quantity }} sold</span>
+                        </div>
+                        <div class="progress" style="height: 10px;">
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $soldPercentage }}%;" 
+                                aria-valuenow="{{ $soldPercentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        @if($remaining <= 5 && $remaining > 0)
+                            <div class="text-danger mt-2">
+                                <i class="fas fa-fire me-1"></i> Hurry! Only {{ $remaining }} items left at this price!
+                            </div>
+                        @endif
+                    </div>
+                    @endif
+                @endif
                 
                 <hr class="my-4">
                 
                 @if($product->stock > 0)
                     <form action="{{ route('cart.add', $product->id) }}" method="POST" class="mb-4">
                         @csrf
+                        @if($product->hasActiveFlashSale())
+                        <input type="hidden" name="flash_sale_id" value="{{ $product->active_flash_sale->id }}">
+                        @endif
                         <div class="row g-3 align-items-center">
                             <div class="col-md-6">
                                 <button type="submit" class="btn btn-primary w-100">
@@ -180,5 +227,39 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Flash sale countdown timer
+        const flashSaleTimer = document.querySelector('.flash-sale-timer');
+        if (flashSaleTimer) {
+            const endTime = new Date(flashSaleTimer.dataset.end).getTime();
+            
+            const updateTimer = function() {
+                const now = new Date().getTime();
+                const distance = endTime - now;
+                
+                if (distance <= 0) {
+                    document.querySelector('.timer-display').textContent = 'Expired';
+                    return;
+                }
+                
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                document.querySelector('.timer-display').textContent = 
+                    (hours < 10 ? '0' + hours : hours) + ':' +
+                    (minutes < 10 ? '0' + minutes : minutes) + ':' +
+                    (seconds < 10 ? '0' + seconds : seconds);
+            };
+            
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+    });
+</script>
+@endpush
 
 @endsection

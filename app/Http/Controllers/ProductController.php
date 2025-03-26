@@ -194,7 +194,8 @@ class ProductController extends Controller
                 break;
         }
 
-        $products = $query->with('brand')->paginate(12);
+        // Eager load brand and active flash sales
+        $products = $query->with(['brand', 'activeFlashSales'])->paginate(12);
         $brands = Brand::all();
 
         return view('products.index', compact('products', 'brands'));
@@ -205,7 +206,7 @@ class ProductController extends Controller
      */
     public function customerShow(Product $product): View
     {
-        $product->load('specifications.specificationType');
+        $product->load(['specifications.specificationType', 'activeFlashSales']);
         return view('products.show', compact('product'));
     }
 }

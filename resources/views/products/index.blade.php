@@ -92,9 +92,9 @@
                                         <i class="fas fa-eye me-1"></i> View Details
                                     </a>
                                 </div>
-                                @if(isset($product->discount_percentage) && $product->discount_percentage > 0)
+                                @if($product->hasActiveFlashSale())
                                 <span class="badge bg-danger position-absolute top-0 start-0 m-3">
-                                    -{{ $product->discount_percentage }}%
+                                    -{{ $product->current_discount_percentage }}%
                                 </span>
                                 @endif
                             </div>
@@ -111,9 +111,19 @@
                                 </a>
                                 <p class="card-text text-muted flex-grow-1">{{ Str::limit($product->description, 50) }}</p>
                                 <div class="d-flex justify-content-between align-items-center mt-3">
+                                    @if($product->hasActiveFlashSale())
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-danger">${{ number_format($product->current_flash_sale_price, 2) }}</h6>
+                                        <small class="text-muted text-decoration-line-through">${{ number_format($product->price, 2) }}</small>
+                                    </div>
+                                    @else
                                     <h6 class="mb-0 fw-bold">${{ number_format($product->price, 2) }}</h6>
+                                    @endif
                                     <form action="{{ route('cart.add', $product->id) }}" method="POST">
                                         @csrf
+                                        @if($product->hasActiveFlashSale())
+                                        <input type="hidden" name="flash_sale_id" value="{{ $product->active_flash_sale->id }}">
+                                        @endif
                                         <button type="submit" class="btn btn-primary">
                                             <i class="fas fa-shopping-cart"></i>
                                         </button>

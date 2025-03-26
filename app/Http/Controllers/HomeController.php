@@ -21,8 +21,11 @@ class HomeController extends Controller
         ->orderBy('end_time', 'asc')
         ->first();
         
-        // Fetch some featured products or latest products
-        $featuredProducts = Product::latest()->take(8)->get();
+        // Fetch some featured products with their active flash sales
+        $featuredProducts = Product::with(['brand', 'activeFlashSales'])
+            ->latest()
+            ->take(8)
+            ->get();
         
         return view('home', compact('featuredProducts', 'activeFlashSale'));
     }

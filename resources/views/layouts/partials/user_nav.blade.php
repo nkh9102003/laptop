@@ -14,8 +14,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('orders.index') }}">
-                        <i class="fas fa-shopping-bag me-1"></i> {{ __('messages.orders') }}
+                    <a href="{{ route('flash-sales.index') }}" class="nav-link">
+                        <i class="fas fa-bolt me-1"></i> {{ __('Flash Sales') }}
                     </a>
                 </li>
             </ul>

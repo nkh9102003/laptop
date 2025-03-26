@@ -75,8 +75,17 @@ class Product extends Model
             ->where('is_active', true)
             ->where('start_time', '<=', now())
             ->where('end_time', '>=', now())
-            ->withPivot('discount_price', 'quantity_limit', 'sold_count')
-            ->withTimestamps();
+            ->withPivot('sale_price', 'max_quantity', 'sold_count')
+            ->withTimestamps()
+            ->using(FlashSaleItem::class);
+    }
+
+    /**
+     * Check if the product has an active flash sale
+     */
+    public function hasActiveFlashSale()
+    {
+        return $this->activeFlashSales()->exists();
     }
 
     /**
@@ -85,7 +94,7 @@ class Product extends Model
     public function getCurrentFlashSalePriceAttribute()
     {
         $activeFlashSale = $this->activeFlashSales()->first();
-        return $activeFlashSale ? $activeFlashSale->pivot->discount_price : $this->price;
+        return $activeFlashSale ? $activeFlashSale->pivot->sale_price : $this->price;
     }
 
     /**
@@ -97,7 +106,15 @@ class Product extends Model
         if (!$activeFlashSale) {
             return 0;
         }
-        return round((($this->price - $activeFlashSale->pivot->discount_price) / $this->price) * 100);
+        return round((($this->price - $activeFlashSale->pivot->sale_price) / $this->price) * 100);
+    }
+
+    /**
+     * Get the active flash sale for this product
+     */
+    public function getActiveFlashSaleAttribute()
+    {
+        return $this->activeFlashSales()->first();
     }
     
     /**
