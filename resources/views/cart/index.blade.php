@@ -2,6 +2,18 @@
 
 @section('content')
 <div class="container py-4">
+    <!-- Debug Information -->
+    @if(session('cart_debug'))
+    <div class="card border-warning mb-4">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">Debug Information</h5>
+        </div>
+        <div class="card-body">
+            <pre class="mb-0">{{ json_encode(session('cart_debug'), JSON_PRETTY_PRINT) }}</pre>
+        </div>
+    </div>
+    @endif
+    
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
@@ -37,10 +49,22 @@
                                                     <div class="ms-3">
                                                         <h6 class="mb-0">{{ $item->product->name }}</h6>
                                                         <small class="text-muted">{{ $item->product->brand->name }}</small>
+                                                        @if($item->hasActiveDiscount())
+                                                            <div class="mt-1">
+                                                                <span class="badge bg-danger">{{ $item->discount_percentage }}% OFF</span>
+                                                            </div>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="py-3 align-middle">${{ number_format($item->product->price, 2) }}</td>
+                                            <td class="py-3 align-middle">
+                                                @if($item->hasActiveDiscount())
+                                                    <span class="text-danger fw-bold">${{ number_format($item->flash_sale_price, 2) }}</span>
+                                                    <br><small class="text-decoration-line-through">${{ number_format($item->product->price, 2) }}</small>
+                                                @else
+                                                    ${{ number_format($item->product->price, 2) }}
+                                                @endif
+                                            </td>
                                             <td class="py-3 align-middle">
                                                 <form action="{{ route('cart.update', $item->id) }}" method="POST" class="d-flex align-items-center quantity-form">
                                                     @csrf
@@ -59,7 +83,7 @@
                                                     </button>
                                                 </form>
                                             </td>
-                                            <td class="py-3 align-middle fw-bold">${{ number_format($item->product->price * $item->quantity, 2) }}</td>
+                                            <td class="py-3 align-middle fw-bold">${{ number_format($item->total, 2) }}</td>
                                             <td class="py-3 align-middle pe-4">
                                                 <form action="{{ route('cart.remove', $item->id) }}" method="POST">
                                                     @csrf
@@ -99,8 +123,22 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between mb-3">
                             <span>Subtotal</span>
-                            <span>${{ number_format($cart->items->sum(function($item) { return $item->product->price * $item->quantity; }), 2) }}</span>
+                            <span>${{ number_format($cart->items->sum(function($item) { return $item->total; }), 2) }}</span>
                         </div>
+                        
+                        @php
+                            $regularTotal = $cart->items->sum(function($item) { return $item->product->price * $item->quantity; });
+                            $discountedTotal = $cart->items->sum(function($item) { return $item->total; });
+                            $savedAmount = $regularTotal - $discountedTotal;
+                        @endphp
+                        
+                        @if($savedAmount > 0)
+                        <div class="d-flex justify-content-between mb-3 text-success">
+                            <span>Flash Sale Savings</span>
+                            <span>-${{ number_format($savedAmount, 2) }}</span>
+                        </div>
+                        @endif
+                        
                         <div class="d-flex justify-content-between mb-3">
                             <span>Shipping</span>
                             <span>Free</span>
@@ -108,7 +146,7 @@
                         <hr>
                         <div class="d-flex justify-content-between mb-4">
                             <strong>Total</strong>
-                            <strong class="text-primary">${{ number_format($cart->items->sum(function($item) { return $item->product->price * $item->quantity; }), 2) }}</strong>
+                            <strong class="text-primary">${{ number_format($cart->items->sum(function($item) { return $item->total; }), 2) }}</strong>
                         </div>
                         <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#checkoutModal">
                             <i class="fas fa-credit-card me-2"></i> Proceed to Checkout
@@ -183,14 +221,6 @@
                         <div class="col-12">
                             <label for="address" class="form-label">Delivery Address</label>
                             <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="city" class="form-label">City</label>
-                            <input type="text" class="form-control" id="city" name="city" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="postal_code" class="form-label">Postal Code</label>
-                            <input type="text" class="form-control" id="postal_code" name="postal_code" required>
                         </div>
                         <div class="col-12">
                             <label for="payment_method" class="form-label">Payment Method</label>

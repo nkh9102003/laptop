@@ -31,7 +31,7 @@ class FlashSale extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'flash_sale_items')
-            ->withPivot('discount_price', 'quantity_limit', 'sold_count')
+            ->withPivot('sale_price', 'max_quantity', 'sold_count')
             ->withTimestamps()
             ->using(FlashSaleItem::class);
     }

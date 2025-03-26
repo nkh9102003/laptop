@@ -16,14 +16,14 @@ class FlashSaleItem extends Pivot
     protected $fillable = [
         'flash_sale_id',
         'product_id',
-        'discount_price',
-        'quantity_limit',
+        'sale_price',
+        'max_quantity',
         'sold_count',
     ];
 
     protected $casts = [
-        'discount_price' => 'decimal:2',
-        'quantity_limit' => 'integer',
+        'sale_price' => 'decimal:2',
+        'max_quantity' => 'integer',
         'sold_count' => 'integer',
     ];
 
@@ -44,10 +44,10 @@ class FlashSaleItem extends Pivot
 
     public function hasAvailableStock()
     {
-        if ($this->quantity_limit === null) {
+        if ($this->max_quantity === null) {
             return true;
         }
-        return $this->sold_count < $this->quantity_limit;
+        return $this->sold_count < $this->max_quantity;
     }
 
     public function getDiscountPercentageAttribute()
@@ -58,7 +58,7 @@ class FlashSaleItem extends Pivot
     public function calculateDiscountPercentage()
     {
         // First, make sure we have the necessary data to calculate the discount
-        $discountPrice = $this->discount_price;
+        $discountPrice = $this->sale_price;
         
         // Try to get the original price
         $originalPrice = null;

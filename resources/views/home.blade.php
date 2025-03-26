@@ -69,6 +69,123 @@
     </div>
 </section>
 
+<!-- Flash Sale Section -->
+@if(isset($activeFlashSale) && $activeFlashSale && $activeFlashSale->products->count() > 0)
+<section class="mb-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-0 text-danger">{{ __('Flash Sale') }}</h2>
+                <div class="flash-sale-timer mt-2" data-end="{{ $activeFlashSale->end_time }}">
+                    <span class="badge bg-danger">Ends in: <span id="flash-timer">00:00:00</span></span>
+                </div>
+            </div>
+            <a href="{{ route('flash-sales.index') }}" class="btn btn-outline-danger">{{ __('View All Deals') }} <i class="fas fa-bolt ms-1"></i></a>
+        </div>
+        
+        <div class="row g-4">
+            @foreach($activeFlashSale->products as $product)
+            <div class="col-md-2">
+                <div class="card h-100 border-0 shadow-sm product-card flash-sale-card">
+                    <div class="position-relative product-image-container">
+                        <img src="{{ $product->image_url }}" class="card-img-top product-image" alt="{{ $product->name }}">
+                        <div class="overlay">
+                            <a href="{{ route('products.show', $product->id) }}" class="btn btn-light btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-2">
+                            -{{ number_format((($product->price - $product->pivot->sale_price) / $product->price) * 100, 0) }}%
+                        </span>
+                    </div>
+                    <div class="card-body d-flex flex-column p-3">
+                        <a href="{{ route('products.show', $product->id) }}" class="text-decoration-none">
+                            <h6 class="card-title text-dark">{{ Str::limit($product->name, 30) }}</h6>
+                        </a>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <div>
+                                <span class="text-danger fw-bold">${{ number_format($product->pivot->sale_price, 2) }}</span>
+                                <small class="text-muted text-decoration-line-through d-block">${{ number_format($product->price, 2) }}</small>
+                            </div>
+                            @auth
+                            <form action="{{ route('cart.add', $product->id) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="flash_sale_id" value="{{ $activeFlashSale->id }}">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-shopping-cart"></i>
+                                </button>
+                            </form>
+                            @else
+                            <a href="{{ route('login') }}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-shopping-cart"></i>
+                            </a>
+                            @endauth
+                        </div>
+                        <div class="progress mt-2" style="height: 10px;">
+                            @php 
+                                $soldPercentage = ($product->pivot->max_quantity > 0) 
+                                    ? min(100, ($product->pivot->sold_count / $product->pivot->max_quantity) * 100)
+                                    : 0;
+                            @endphp
+                            <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $soldPercentage }}%;" 
+                                 aria-valuenow="{{ $soldPercentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <small class="text-muted mt-1">
+                            {{ $product->pivot->max_quantity > 0 ? $product->pivot->max_quantity - $product->pivot->sold_count : 'Unlimited' }} items left
+                        </small>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Flash sale countdown timer
+        const flashSaleTimer = document.querySelector('.flash-sale-timer');
+        if (flashSaleTimer) {
+            const endTime = new Date(flashSaleTimer.dataset.end).getTime();
+            
+            const updateTimer = function() {
+                const now = new Date().getTime();
+                const distance = endTime - now;
+                
+                if (distance <= 0) {
+                    document.getElementById('flash-timer').textContent = 'Expired';
+                    return;
+                }
+                
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                document.getElementById('flash-timer').textContent = 
+                    (hours < 10 ? '0' + hours : hours) + ':' +
+                    (minutes < 10 ? '0' + minutes : minutes) + ':' +
+                    (seconds < 10 ? '0' + seconds : seconds);
+            };
+            
+            updateTimer();
+            setInterval(updateTimer, 1000);
+        }
+    });
+</script>
+
+<style>
+    .flash-sale-card {
+        transition: transform 0.2s ease;
+        border-radius: 0.5rem;
+        border-left: 3px solid #dc3545 !important;
+    }
+    
+    .flash-sale-card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+@endif
+
 <!-- Featured Products Section -->
 <section id="featured-products" class="mb-5">
     <div class="container">

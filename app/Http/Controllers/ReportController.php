@@ -67,7 +67,6 @@ class ReportController extends Controller
             ->select('payment_method', DB::raw('SUM(amount) as total_revenue'))
             ->groupBy('payment_method')
             ->get();
-
         return view('admin.reports.index', compact(
             'totalCustomers',
             'totalOrders',

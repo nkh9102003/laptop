@@ -109,11 +109,11 @@
                                     <tr>
                                         <td>{{ $product->name }}</td>
                                         <td>${{ number_format($product->price, 2) }}</td>
-                                        <td>${{ number_format($product->pivot->discount_price, 2) }}</td>
+                                        <td>${{ number_format($product->pivot->sale_price, 2) }}</td>
                                         <td>
                                             <span class="badge bg-info">{{ $product->pivot->discount_percentage }}%</span>
                                         </td>
-                                        <td>{{ $product->pivot->quantity_limit ?? 'No limit' }}</td>
+                                        <td>{{ $product->pivot->max_quantity ?? 'No limit' }}</td>
                                         <td>{{ $product->pivot->sold_count }}</td>
                                     </tr>
                                 @empty

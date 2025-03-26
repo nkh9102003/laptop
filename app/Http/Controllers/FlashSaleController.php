@@ -50,8 +50,8 @@ class FlashSaleController extends Controller
 
             foreach ($validated['products'] as $product) {
                 $flashSale->products()->attach($product['id'], [
-                    'discount_price' => $product['discount_price'],
-                    'quantity_limit' => $product['quantity_limit'] ?? null,
+                    'sale_price' => $product['discount_price'],
+                    'max_quantity' => $product['quantity_limit'] ?? null,
                     'sold_count' => 0,
                 ]);
             }
@@ -101,8 +101,8 @@ class FlashSaleController extends Controller
             // Sync products with their new prices and limits
             $syncData = collect($validated['products'])->mapWithKeys(function ($product) {
                 return [$product['id'] => [
-                    'discount_price' => $product['discount_price'],
-                    'quantity_limit' => $product['quantity_limit'] ?? null,
+                    'sale_price' => $product['discount_price'],
+                    'max_quantity' => $product['quantity_limit'] ?? null,
                     'sold_count' => 0, // Reset sold count for simplicity
                 ]];
             })->toArray();

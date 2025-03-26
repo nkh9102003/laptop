@@ -90,14 +90,65 @@
                                 <tbody>
                                     @foreach($order->items as $item)
                                         <tr>
-                                            <td>{{ $item->product->name }}</td>
-                                            <td>${{ number_format($item->price, 2) }}</td>
+                                            <td>
+                                                {{ $item->product->name }}
+                                                @if($item->flash_sale_id)
+                                                    <span class="badge bg-danger ms-2">
+                                                        Flash Sale
+                                                    </span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($item->hasDiscount())
+                                                    <span class="text-danger">${{ number_format($item->price, 2) }}</span>
+                                                    <br>
+                                                    <small class="text-decoration-line-through text-muted">
+                                                        ${{ number_format($item->original_price, 2) }}
+                                                    </small>
+                                                    <small class="badge bg-danger ms-2">
+                                                        -{{ $item->discount_percentage }}%
+                                                    </small>
+                                                @else
+                                                    ${{ number_format($item->price, 2) }}
+                                                @endif
+                                            </td>
                                             <td>{{ $item->quantity }}</td>
                                             <td class="text-end">${{ number_format($item->price * $item->quantity, 2) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                                 <tfoot>
+                                    @php
+                                        $hasDiscounts = $order->items->contains(function($item) {
+                                            return $item->hasDiscount();
+                                        });
+                                        
+                                        if ($hasDiscounts) {
+                                            $originalTotal = $order->items->sum(function($item) {
+                                                return ($item->original_price ?? $item->price) * $item->quantity;
+                                            });
+                                            $savedAmount = $originalTotal - $order->total;
+                                        }
+                                    @endphp
+                                    
+                                    @if(isset($savedAmount) && $savedAmount > 0)
+                                    <tr>
+                                        <th colspan="3" class="text-end text-muted">
+                                            <small>Original Total:</small>
+                                        </th>
+                                        <td class="text-end text-muted">
+                                            <small>${{ number_format($originalTotal, 2) }}</small>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="3" class="text-end text-success">
+                                            <small>You Saved:</small>
+                                        </th>
+                                        <td class="text-end text-success">
+                                            <small>-${{ number_format($savedAmount, 2) }}</small>
+                                        </td>
+                                    </tr>
+                                    @endif
                                     <tr>
                                         <th colspan="3" class="text-end">Total:</th>
                                         <th class="text-end">${{ number_format($order->total, 2) }}</th>

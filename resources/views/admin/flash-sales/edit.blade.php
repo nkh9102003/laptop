@@ -192,7 +192,7 @@
                                                             <input type="number" 
                                                                    name="products[{{ $index }}][discount_price]" 
                                                                    class="form-control" 
-                                                                   value="{{ $product->pivot->discount_price }}" 
+                                                                   value="{{ $product->pivot->sale_price }}" 
                                                                    step="0.01" 
                                                                    min="0" 
                                                                    required>
@@ -204,7 +204,7 @@
                                                         <input type="number" 
                                                                name="products[{{ $index }}][quantity_limit]" 
                                                                class="form-control" 
-                                                               value="{{ $product->pivot->quantity_limit ?? '' }}" 
+                                                               value="{{ $product->pivot->max_quantity ?? '' }}" 
                                                                placeholder="No limit"
                                                                min="1">
                                                     </div>
